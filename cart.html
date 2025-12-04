@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Корзина</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page">
+<header class="header">
+    <a href="index.html" class="back-link">← На главную</a>
+</header>
+
+<main class="main">
+    <h1 class="title">Корзина</h1>
+    <section id="cartContainer" class="cart-container">
+        <!-- Содержимое корзины будет вставлено через JS -->
+    </section>
+</main>
+
+<script>
+    function loadCart() {
+        try {
+            return JSON.parse(localStorage.getItem('cartItems')) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem('cartItems', JSON.stringify(cart));
+    }
+
+    function renderCart() {
+        const cart = loadCart();
+        const container = document.getElementById('cartContainer');
+        container.innerHTML = '';
+
+        if (cart.length === 0) {
+            container.innerHTML = '<p class="cart-empty">Корзина пока пуста.</p>';
+            return;
+        }
+
+        const list = document.createElement('div');
+        list.className = 'cart-list';
+
+        let total = 0;
+
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+
+            const row = document.createElement('div');
+            row.className = 'cart-item';
+
+            row.innerHTML = `
+                <div class="cart-item-main">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-price">${item.price} ₽</div>
+                </div>
+                <div class="cart-item-qty">
+                    Кол-во: ${item.quantity}
+                </div>
+            `;
+
+            list.appendChild(row);
+        });
+
+        const totalEl = document.createElement('div');
+        totalEl.className = 'cart-total';
+        totalEl.textContent = 'Итого: ' + total + ' ₽';
+
+        const actions = document.createElement('div');
+        actions.className = 'cart-actions';
+
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Очистить корзину';
+        clearBtn.className = 'secondary-button';
+        clearBtn.addEventListener('click', () => {
+            saveCart([]);
+            renderCart();
+        });
+
+        actions.appendChild(clearBtn);
+
+        container.appendChild(list);
+        container.appendChild(totalEl);
+        container.appendChild(actions);
+    }
+
+    renderCart();
+</script>
+</body>
+</html>
